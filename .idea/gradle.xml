@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ktoon-api" />
+            <option value="$PROJECT_DIR$/ktoon-core" />
+            <option value="$PROJECT_DIR$/ktoon-engine" />
+            <option value="$PROJECT_DIR$/ktoon-internal" />
+            <option value="$PROJECT_DIR$/ktoon-parser" />
+            <option value="$PROJECT_DIR$/ktoon-processing" />
+            <option value="$PROJECT_DIR$/ktoon-writer" />
+          </set>
+        </option>
+        <option name="myGradleHome" value="" />
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
