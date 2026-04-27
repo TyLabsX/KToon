@@ -177,8 +177,10 @@ ktoon-api
 External usage only requires:
 
 ```
-ktoon
+ktoon-api
 ```
+
+Or the Package
 
 ---
 
