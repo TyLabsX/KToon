@@ -102,8 +102,50 @@ result.results.forEach {
 Example result:
 
 ```text
-users[0].name -> Alice
-users[1].name -> Bob
+---- KOTLINX WEIRD STRINGS TOON ----
+nullString: "null"
+trueString: "true"
+falseString: "false"
+numberString: "123"
+version: 1.0.0
+comma: "a,b"
+colon: "a:b"
+empty: ""
+
+---- KOTLINX COMPLEX TOON ----
+name: TyLabsX
+users[2]:
+  - id: 1
+    name: Alice
+    active: true
+    role: ADMIN
+    tags[2]: core,kotlin
+    address:
+      city: Berlin
+      zip: 10115
+    note: hello
+  - id: 2
+    name: Bob
+    active: false
+    role: USER
+    tags[2]: parser,writer
+    address: null
+    note: null
+metadata:
+  version: 1.0.0
+  format: TOON
+scores[3]: 95.5,88.0,100.25
+
+---- KOTLINX SIMPLE TOON ----
+id: 1
+name: Alice
+active: true
+role: ADMIN
+tags[2]: kotlin,toon
+address:
+  city: Berlin
+  zip: 10115
+note: null
 ```
 
 ---
