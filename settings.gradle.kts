@@ -12,5 +12,6 @@ include(
     "ktoon-writer",
     "ktoon-api",
     "ktoon-internal",
-    "ktoon-codec"
+    "ktoon-codec",
+    "ktoon-kotlinx"
 )
