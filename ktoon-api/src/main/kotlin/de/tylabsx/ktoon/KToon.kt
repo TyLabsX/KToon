@@ -49,6 +49,8 @@ object KToon {
      */
     private val engine by lazy { KToonEngine() }
 
+    private val encoder by lazy { KToonEncoder() }
+
     /**
      * Parses TOON input into a ToonValue structure.
      * 
@@ -409,5 +411,45 @@ object KToon {
      */
     fun `null`(): ToonNull {
         return ToonNull
+    }
+
+    /**
+     * Encodes a Kotlin value into a ToonValue tree.
+     *
+     * @param value Kotlin value
+     * @return encoded ToonValue
+     */
+    fun encode(value: Any?): ToonValue {
+        return encoder.encode(value)
+    }
+
+    /**
+     * Encodes a Kotlin value directly into a TOON string.
+     *
+     * @param value Kotlin value
+     * @return TOON string
+     */
+    fun encodeToString(value: Any?): String {
+        return stringify(encode(value))
+    }
+
+    /**
+     * Decodes a ToonValue into a Kotlin object of type T.
+     *
+     * @param value ToonValue source
+     * @return decoded Kotlin object
+     */
+    inline fun <reified T : Any> decode(value: ToonValue): T {
+        return KToonDecoder().decode<T>(value)
+    }
+
+    /**
+     * Parses a TOON string and decodes it into a Kotlin object of type T.
+     *
+     * @param input TOON input
+     * @return decoded Kotlin object
+     */
+    inline fun <reified T : Any> decodeFromString(input: String): T {
+        return KToonDecoder().decode<T>(parse(input))
     }
 }

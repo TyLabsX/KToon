@@ -8,6 +8,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/ktoon-api" />
+            <option value="$PROJECT_DIR$/ktoon-codec" />
             <option value="$PROJECT_DIR$/ktoon-core" />
             <option value="$PROJECT_DIR$/ktoon-engine" />
             <option value="$PROJECT_DIR$/ktoon-internal" />

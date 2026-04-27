@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":ktoon-parser"))
     implementation(project(":ktoon-processing"))
     implementation(project(":ktoon-internal"))
+    implementation(project(":ktoon-codec"))
 
     testImplementation(kotlin("test"))
     testImplementation(project(":ktoon-core"))

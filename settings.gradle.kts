@@ -11,5 +11,6 @@ include(
     "ktoon-processing",
     "ktoon-writer",
     "ktoon-api",
-    "ktoon-internal"
+    "ktoon-internal",
+    "ktoon-codec"
 )
