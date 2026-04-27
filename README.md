@@ -89,29 +89,86 @@ active: true
 
 ---
 
-## Query System
+## KotlinX Serialization Support
 
 ```kotlin
-val result = KToon.query(value, "users.*.name")
+@Serializable
+data class Address(
+    val city: String,
+    val zip: Int
+)
 
-result.results.forEach {
-    println("${it.path} -> ${it.value}")
+@Serializable
+enum class Role {
+    ADMIN,
+    USER
 }
+
+@Serializable
+data class User(
+    val id: Int,
+    val name: String,
+    val active: Boolean,
+    val role: Role,
+    val tags: List<String>,
+    val address: Address?,
+    val note: String?
+)
+
+@Serializable
+data class Company(
+    val name: String,
+    val users: List<User>,
+    val metadata: Map<String, String>,
+    val scores: List<Double>
+)
+
+
+
+val company = Company(
+            name = "TyLabsX",
+            users = listOf(
+                User(
+                    id = 1,
+                    name = "Alice",
+                    active = true,
+                    role = Role.ADMIN,
+                    tags = listOf("core", "kotlin"),
+                    address = Address("Berlin", 10115),
+                    note = "hello"
+                ),
+                User(
+                    id = 2,
+                    name = "Bob",
+                    active = false,
+                    role = Role.USER,
+                    tags = listOf("parser", "writer"),
+                    address = null,
+                    note = null
+                )
+            ),
+            metadata = mapOf(
+                "version" to "1.0.0",
+                "format" to "TOON"
+            ),
+            scores = listOf(95.5, 88.0, 100.25)
+        )
+
+        val toon = KToonKotlinX.encodeToString(company)
+
+        println()
+        println("---- KOTLINX COMPLEX TOON ----")
+        println(toon)
+
+        val decoded = KToonKotlinX.decodeFromString<Company>(toon)
+
+        assertEquals(company, decoded)
+    }
 ```
 
-Example result:
+Example Result:
 
 ```text
----- KOTLINX WEIRD STRINGS TOON ----
-nullString: "null"
-trueString: "true"
-falseString: "false"
-numberString: "123"
-version: 1.0.0
-comma: "a,b"
-colon: "a:b"
-empty: ""
-
 ---- KOTLINX COMPLEX TOON ----
 name: TyLabsX
 users[2]:
@@ -135,17 +192,25 @@ metadata:
   version: 1.0.0
   format: TOON
 scores[3]: 95.5,88.0,100.25
+```
 
----- KOTLINX SIMPLE TOON ----
-id: 1
-name: Alice
-active: true
-role: ADMIN
-tags[2]: kotlin,toon
-address:
-  city: Berlin
-  zip: 10115
-note: null
+---
+
+## Query System
+
+```kotlin
+val result = KToon.query(value, "users.*.name")
+
+result.results.forEach {
+    println("${it.path} -> ${it.value}")
+}
+```
+
+Example result:
+
+```text
+users[0].name -> Alice
+users[1].name -> Bob
 ```
 
 ---
