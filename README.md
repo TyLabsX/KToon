@@ -293,6 +293,7 @@ ktoon-writer
 ktoon-processing
 ktoon-engine
 ktoon-api
+ktoon-kotlinx
 ```
 
 External usage only requires:
