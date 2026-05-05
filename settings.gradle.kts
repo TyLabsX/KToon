@@ -4,6 +4,14 @@ plugins {
 
 rootProject.name = "KToon"
 
+val ktoonGroup = "de.tylabsx"
+val ktoonVersion = "1.1.0"
+
+gradle.beforeProject {
+    group = ktoonGroup
+    version = ktoonVersion
+}
+
 include(
     "ktoon-core",
     "ktoon-engine",

@@ -28,6 +28,10 @@ import de.tylabsx.ktoon.*
  */
 class ValueResolver {
 
+    private companion object {
+        private val NumberRegex = Regex("""^-?\d+(\.\d+)?([eE][+-]?\d+)?$""")
+    }
+
     /**
      * Resolves a raw string value into appropriate ToonValue.
      * 
@@ -87,9 +91,7 @@ class ValueResolver {
     private fun isNumberValue(value: String): Boolean {
         if (value.isEmpty()) return false
 
-        // Check for valid number format
-        val regex = Regex("""^-?\d+(\.\d+)?([eE][+-]?\d+)?$""")
-        return regex.matches(value)
+        return NumberRegex.matches(value)
     }
 
     /**

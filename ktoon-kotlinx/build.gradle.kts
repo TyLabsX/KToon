@@ -4,9 +4,6 @@ plugins {
     `java-library`
 }
 
-group = "de.tylabsx"
-version = "1.0-SNAPSHOT"
-
 repositories {
     mavenCentral()
 }

@@ -1,6 +1,7 @@
 package de.tylabsx.ktoon
 
 import de.tylabsx.ktoon.pipeline.*
+import java.util.IdentityHashMap
 
 /**
  * Central orchestration engine for TOON parsing operations.
@@ -151,6 +152,7 @@ class KToonParserEngine {
      */
     private fun resolveClassifiedLines(classifiedLines: List<ClassifiedLine>): ToonValue {
         val included = classifiedLines.filter { it.shouldIncludeInStructure() }
+        val context = ResolutionContext(included)
         val rootLines = included.filter { it.indentationLine.parent == null }
 
         val entries = linkedMapOf<String, ToonValue>()
@@ -163,7 +165,7 @@ class KToonParserEngine {
                 context = line.indentationLine.lineInfo.content
             )
 
-            val value = resolveClassifiedLine(line, included)
+            val value = resolveClassifiedLine(line, context)
 
             putEntryWithOptionalKeyFolding(
                 target = entries,
@@ -185,10 +187,10 @@ class KToonParserEngine {
      */
     private fun resolveClassifiedLine(
         line: ClassifiedLine,
-        allLines: List<ClassifiedLine>
+        context: ResolutionContext
     ): ToonValue {
         return when (line.type) {
-            LineType.TABULAR_ARRAY_HEADER -> resolveTabularArray(line, allLines)
+            LineType.TABULAR_ARRAY_HEADER -> resolveTabularArray(line, context)
 
             LineType.TABULAR_ARRAY_ROW -> {
                 throw ToonParseException(
@@ -203,17 +205,17 @@ class KToonParserEngine {
 
             LineType.KEY_ONLY -> {
                 val key = line.key ?: ""
-                val children = getDirectChildren(line, allLines)
+                val children = context.directChildren(line)
 
                 if (isArrayHeader(key)) {
-                    resolveBlockArray(line, children, allLines)
+                    resolveBlockArray(line, children, context)
                 } else {
-                    resolveObjectFromChildren(children, allLines)
+                    resolveObjectFromChildren(children, context)
                 }
             }
 
             LineType.KEY_VALUE -> {
-                val children = allLines.filter { it.indentationLine.parent == line.indentationLine }
+                val children = context.directChildren(line)
 
                 if (children.isNotEmpty()) {
                     throw ToonParseException(
@@ -247,20 +249,22 @@ class KToonParserEngine {
      */
     private fun resolveObjectFromChildren(
         children: List<ClassifiedLine>,
-        allLines: List<ClassifiedLine>
+        context: ResolutionContext
     ): ToonObject {
-        return ToonObject(
-            children.associate { child ->
-                val childKey = child.key ?: throw ToonParseException(
-                    message = "Object child missing key",
-                    line = child.indentationLine.lineInfo.lineNumber,
-                    column = 1,
-                    context = child.indentationLine.lineInfo.content
-                )
+        val entries = LinkedHashMap<String, ToonValue>(children.size)
 
-                cleanKeyName(childKey) to resolveClassifiedLine(child, allLines)
-            }
-        )
+        children.forEach { child ->
+            val childKey = child.key ?: throw ToonParseException(
+                message = "Object child missing key",
+                line = child.indentationLine.lineInfo.lineNumber,
+                column = 1,
+                context = child.indentationLine.lineInfo.content
+            )
+
+            entries[cleanKeyName(childKey)] = resolveClassifiedLine(child, context)
+        }
+
+        return ToonObject(entries)
     }
 
     /**
@@ -276,8 +280,11 @@ class KToonParserEngine {
      * @return resolved ToonArray
      */
     private fun resolveInlineArray(line: ClassifiedLine): ToonArray {
-        val values = splitDelimitedValues(line.value ?: "", ',')
-            .map { valueResolver.resolveValue(it) }
+        val rawValues = splitDelimitedValues(line.value ?: "", ',')
+        val values = ArrayList<ToonValue>(rawValues.size)
+        rawValues.forEach { value ->
+            values.add(valueResolver.resolveValue(value))
+        }
 
         validateArrayLength(
             key = line.key ?: "",
@@ -306,7 +313,7 @@ class KToonParserEngine {
      */
     private fun resolveTabularArray(
         headerLine: ClassifiedLine,
-        allLines: List<ClassifiedLine>
+        context: ResolutionContext
     ): ToonArray {
         val headers = headerLine.arrayHeaders
 
@@ -319,8 +326,13 @@ class KToonParserEngine {
             )
         }
 
-        val rows = getDirectChildren(headerLine, allLines)
-            .filter { it.type == LineType.TABULAR_ARRAY_ROW }
+        val children = context.directChildren(headerLine)
+        val rows = ArrayList<ClassifiedLine>(children.size)
+        children.forEach { child ->
+            if (child.type == LineType.TABULAR_ARRAY_ROW) {
+                rows.add(child)
+            }
+        }
 
         validateArrayLength(
             key = headerLine.key ?: "",
@@ -329,26 +341,28 @@ class KToonParserEngine {
             context = headerLine.indentationLine.lineInfo.content
         )
 
-        return ToonArray(
-            rows.map { row ->
-                val values = splitDelimitedValues(row.value ?: "", ',')
+        val objects = ArrayList<ToonValue>(rows.size)
 
-                if (values.size != headers.size) {
-                    throw ToonParseException(
-                        message = "Tabular row column mismatch: expected ${headers.size} but got ${values.size}",
-                        line = row.indentationLine.lineInfo.lineNumber,
-                        column = 1,
-                        context = row.indentationLine.lineInfo.content
-                    )
-                }
+        rows.forEach { row ->
+            val values = splitDelimitedValues(row.value ?: "", ',')
 
-                ToonObject(
-                    headers.zip(values).associate { (header, value) ->
-                        header to valueResolver.resolveValue(value)
-                    }
+            if (values.size != headers.size) {
+                throw ToonParseException(
+                    message = "Tabular row column mismatch: expected ${headers.size} but got ${values.size}",
+                    line = row.indentationLine.lineInfo.lineNumber,
+                    column = 1,
+                    context = row.indentationLine.lineInfo.content
                 )
             }
-        )
+
+            val entries = LinkedHashMap<String, ToonValue>(headers.size)
+            for (index in headers.indices) {
+                entries[headers[index]] = valueResolver.resolveValue(values[index])
+            }
+            objects.add(ToonObject(entries))
+        }
+
+        return ToonArray(objects)
     }
 
     /**
@@ -372,9 +386,11 @@ class KToonParserEngine {
     private fun resolveBlockArray(
         headerLine: ClassifiedLine,
         directChildren: List<ClassifiedLine>,
-        allLines: List<ClassifiedLine>
+        context: ResolutionContext
     ): ToonArray {
-        val values = directChildren.map { child ->
+        val values = ArrayList<ToonValue>(directChildren.size)
+
+        directChildren.forEach { child ->
             val key = child.key ?: ""
 
             if (!isListItemKey(key)) {
@@ -386,7 +402,7 @@ class KToonParserEngine {
                 )
             }
 
-            resolveArrayItem(child, allLines)
+            values.add(resolveArrayItem(child, context))
         }
 
         validateArrayLength(
@@ -421,17 +437,17 @@ class KToonParserEngine {
      */
     private fun resolveArrayItem(
         itemLine: ClassifiedLine,
-        allLines: List<ClassifiedLine>
+        context: ResolutionContext
     ): ToonValue {
         val rawKey = itemLine.key ?: ""
         val itemKey = rawKey.removePrefix("-").trim()
-        val children = getDirectChildren(itemLine, allLines)
+        val children = context.directChildren(itemLine)
 
         if (itemKey.isEmpty()) {
             return if (children.isEmpty()) {
                 valueResolver.resolveValue(itemLine.value ?: "")
             } else {
-                resolveObjectFromChildren(children, allLines)
+                resolveObjectFromChildren(children, context)
             }
         }
 
@@ -446,24 +462,10 @@ class KToonParserEngine {
                 context = child.indentationLine.lineInfo.content
             )
 
-            entries[cleanKeyName(childKey)] = resolveClassifiedLine(child, allLines)
+            entries[cleanKeyName(childKey)] = resolveClassifiedLine(child, context)
         }
 
         return ToonObject(entries)
-    }
-
-    /**
-     * Returns direct child lines for a parent line.
-     *
-     * @param parent parent line
-     * @param allLines all included lines
-     * @return direct children
-     */
-    private fun getDirectChildren(
-        parent: ClassifiedLine,
-        allLines: List<ClassifiedLine>
-    ): List<ClassifiedLine> {
-        return allLines.filter { it.indentationLine.parent == parent.indentationLine }
     }
 
     /**
@@ -800,6 +802,42 @@ class KToonParserEngine {
         )
 
         target[head] = ToonObject(childEntries)
+    }
+}
+
+/**
+ * Per-parse lookup table used during value resolution.
+ *
+ * The indentation phase already builds parent/child links for every processed
+ * line. Resolution uses this identity map to move from a processed child line
+ * to its classified representation without repeatedly scanning the complete
+ * document.
+ */
+private class ResolutionContext(
+    includedLines: List<ClassifiedLine>
+) {
+
+    private val classifiedByIndentationLine = IdentityHashMap<ProcessedIndentationLine, ClassifiedLine>(
+        includedLines.size
+    )
+
+    init {
+        includedLines.forEach { line ->
+            classifiedByIndentationLine[line.indentationLine] = line
+        }
+    }
+
+    fun directChildren(line: ClassifiedLine): List<ClassifiedLine> {
+        val children = line.indentationLine.children
+        if (children.isEmpty()) {
+            return emptyList()
+        }
+
+        val result = ArrayList<ClassifiedLine>(children.size)
+        children.forEach { child ->
+            classifiedByIndentationLine[child]?.let(result::add)
+        }
+        return result
     }
 }
 

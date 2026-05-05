@@ -1,9 +1,7 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
 }
-
-group = "de.tylabsx"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -16,6 +14,9 @@ dependencies {
     implementation(project(":ktoon-processing"))
     implementation(project(":ktoon-internal"))
     implementation(project(":ktoon-codec"))
+    api(project(":ktoon-kotlinx"))
+
+    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
 
     testImplementation(kotlin("test"))
     testImplementation(project(":ktoon-core"))

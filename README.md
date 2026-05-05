@@ -262,6 +262,20 @@ app:
 
 ---
 
+## Benchmark Notes
+
+These benchmarks are intended as practical reference measurements, not as a replacement for JMH-based microbenchmarks.
+
+Results depend heavily on data shape. KToon performs especially well on numeric and table-like datasets where tabular arrays can be used. JSON may be smaller or faster for deeply object-heavy or string-heavy structures.
+
+| Dataset | JSON Size | KToon Size | Size Change | JSON Time | Streaming FAST Time |
+|---|---:|---:|---:|---:|---:|
+| Numeric-heavy | 19,851 | 7,641 | -61.51% | 47.87ms | 44.47ms |
+| Deeply nested | 14,311 | 10,527 | -26.44% | 19.76ms | 46.65ms |
+| Realistic user | 12,811 | 13,311 | +3.90% | 15.35ms | 72.93ms |
+
+---
+
 ## Testing
 
 ```bash

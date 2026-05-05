@@ -28,13 +28,17 @@ import kotlinx.serialization.json.contentOrNull
  * @Serializable
  * data class User(val id: Int, val name: String)
  *
- * val toon = KToonKotlinx.encodeToString(User(1, "Alice"))
- * val user = KToonKotlinx.decodeFromString<User>(toon)
+ * val toon = KToonKotlinX.encodeToString(User(1, "Alice"))
+ * val user = KToonKotlinX.decodeFromString<User>(toon)
  * ```
  *
  * @since 1.0.0
  * @author TyLabsX
  */
+@Deprecated(
+    message = "Use KToonNativeFormat instead",
+    level = DeprecationLevel.WARNING
+)
 object KToonKotlinX : StringFormat {
 
     private val json = Json {

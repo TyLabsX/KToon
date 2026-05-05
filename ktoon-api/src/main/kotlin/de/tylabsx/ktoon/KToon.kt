@@ -1,5 +1,11 @@
 package de.tylabsx.ktoon
 
+import de.tylabsx.ktoon.kotlinx.streaming.ExperimentalKToonStreamingApi
+import de.tylabsx.ktoon.kotlinx.streaming.KToonStreamingFormat
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.serializer
+
 /**
  * Main public API for the KToon library.
  * 
@@ -49,7 +55,7 @@ object KToon {
      */
     private val engine by lazy { KToonEngine() }
 
-    private val encoder by lazy { KToonEncoder() }
+    private val reflectiveEncoder by lazy { KToonEncoder() }
 
     /**
      * Parses TOON input into a ToonValue structure.
@@ -414,42 +420,163 @@ object KToon {
     }
 
     /**
-     * Encodes a Kotlin value into a ToonValue tree.
+     * Encodes a Kotlin value into a ToonValue tree using the deprecated
+     * reflection-based codec.
      *
      * @param value Kotlin value
      * @return encoded ToonValue
      */
+    @Deprecated(
+        message = "Reflection-based encoding is deprecated. Use kotlinx.serialization based encodeToString instead.",
+        replaceWith = ReplaceWith("KToon.encodeReflective(value)")
+    )
     fun encode(value: Any?): ToonValue {
-        return encoder.encode(value)
+        return encodeReflective(value)
     }
 
     /**
-     * Encodes a Kotlin value directly into a TOON string.
+     * Encodes a serializable Kotlin value directly into a TOON string.
+     *
+     * This is the primary public encoding API. It uses the native
+     * kotlinx.serialization TOON format and does not use reflection.
+     *
+     * @param serializer serializer for the value
+     * @param value Kotlin value
+     * @return TOON string
+     */
+    fun <T> encodeToString(
+        serializer: SerializationStrategy<T>,
+        value: T
+    ): String {
+        return KToonNativeFormat.encodeToString(serializer, value)
+    }
+
+    /**
+     * Encodes a serializable Kotlin value directly into a TOON string using an
+     * inferred serializer.
      *
      * @param value Kotlin value
      * @return TOON string
      */
-    fun encodeToString(value: Any?): String {
-        return stringify(encode(value))
+    inline fun <reified T> encodeToString(value: T): String {
+        return encodeToString(serializer(), value)
     }
 
     /**
-     * Decodes a ToonValue into a Kotlin object of type T.
+     * Encodes a Kotlin value into a ToonValue tree using the reflection-based
+     * legacy codec.
+     *
+     * @param value Kotlin value
+     * @return encoded ToonValue
+     */
+    fun encodeReflective(value: Any?): ToonValue {
+        return reflectiveEncoder.encode(value)
+    }
+
+    /**
+     * Encodes a Kotlin value directly into a TOON string using the
+     * reflection-based legacy codec.
+     *
+     * @param value Kotlin value
+     * @return TOON string
+     */
+    fun encodeReflectiveToString(value: Any?): String {
+        return stringify(encodeReflective(value))
+    }
+
+    /**
+     * Decodes a ToonValue into a Kotlin object of type T using the deprecated
+     * reflection-based codec.
      *
      * @param value ToonValue source
      * @return decoded Kotlin object
      */
+    @Deprecated(
+        message = "Reflection-based decoding is deprecated. Use kotlinx.serialization based decodeFromString instead.",
+        replaceWith = ReplaceWith("KToon.decodeReflective<T>(value)")
+    )
     inline fun <reified T : Any> decode(value: ToonValue): T {
-        return KToonDecoder().decode<T>(value)
+        return decodeReflective(value)
     }
 
     /**
-     * Parses a TOON string and decodes it into a Kotlin object of type T.
+     * Decodes a ToonValue into a serializable Kotlin object.
+     *
+     * @param deserializer deserializer for the target type
+     * @param value ToonValue source
+     * @return decoded Kotlin object
+     */
+    fun <T> decode(
+        deserializer: DeserializationStrategy<T>,
+        value: ToonValue
+    ): T {
+        return KToonNativeFormat.decodeFromToonValue(deserializer, value)
+    }
+
+    /**
+     * Parses a TOON string and decodes it into a serializable Kotlin object.
+     *
+     * This is the primary public decoding API. It uses the native
+     * kotlinx.serialization TOON format and does not use reflection.
+     *
+     * @param deserializer deserializer for the target type
+     * @param input TOON input
+     * @return decoded Kotlin object
+     */
+    fun <T> decodeFromString(
+        deserializer: DeserializationStrategy<T>,
+        input: String
+    ): T {
+        return KToonNativeFormat.decodeFromString(deserializer, input)
+    }
+
+    /**
+     * Parses a TOON string and decodes it into a serializable Kotlin object
+     * using an inferred serializer.
      *
      * @param input TOON input
      * @return decoded Kotlin object
      */
-    inline fun <reified T : Any> decodeFromString(input: String): T {
-        return KToonDecoder().decode<T>(parse(input))
+    inline fun <reified T> decodeFromString(input: String): T {
+        return decodeFromString(serializer(), input)
+    }
+
+    /**
+     * Decodes a ToonValue into a Kotlin object using the reflection-based
+     * legacy codec.
+     *
+     * @param value ToonValue source
+     * @return decoded Kotlin object
+     */
+    inline fun <reified T : Any> decodeReflective(value: ToonValue): T {
+        return KToonDecoder().decode<T>(value)
+    }
+
+    /**
+     * Parses a TOON string and decodes it into a Kotlin object using the
+     * reflection-based legacy codec.
+     *
+     * @param input TOON input
+     * @return decoded Kotlin object
+     */
+    inline fun <reified T : Any> decodeReflectiveFromString(input: String): T {
+        return decodeReflective(parse(input))
+    }
+
+    /**
+     * Encodes a serializable Kotlin value with the streaming TOON encoder.
+     *
+     * This convenience API uses [KToonStreamingFormat] with its default options.
+     * It writes directly from kotlinx.serialization events into a TOON string
+     * and does not build a [ToonValue] tree. Streaming decode is not supported
+     * by this format yet; use [decodeFromString] or [KToonNativeFormat] for
+     * decoding.
+     *
+     * @param value serializable Kotlin value
+     * @return TOON string produced by the streaming encoder
+     */
+    @OptIn(ExperimentalKToonStreamingApi::class)
+    inline fun <reified T : Any> streamToString(value: T): String {
+        return KToonStreamingFormat.encodeToString(value)
     }
 }

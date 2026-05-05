@@ -1,6 +1,8 @@
 package de.tylabsx.ktoon
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -144,5 +146,66 @@ class KToonKotlinxTest {
         val decoded = KToonKotlinX.decodeFromString<WeirdStrings>(toon)
 
         assertEquals(original, decoded)
+    }
+
+    @Serializable
+    data class UserX(
+        val id: Int,
+        val name: String,
+        val active: Boolean,
+        val role: String
+    )
+
+    @Serializable
+    data class Dataset(
+        val users: List<UserX>
+    )
+
+    @Test
+    fun `compare json and toon output size from kotlinx object`() {
+        val data = Dataset(
+            users = List(100) {
+                UserX(
+                    id = it,
+                    name = "User$it",
+                    active = it % 2 == 0,
+                    role = "member"
+                )
+            }
+        )
+
+        val json = Json.encodeToString(data)
+        val toon = KToonKotlinX.encodeToString(data)
+
+        val jsonTime = measureTimeMillis {
+            repeat(10_000) {
+                Json.encodeToString(data)
+            }
+        }
+
+        val toonTime = measureTimeMillis {
+            repeat(10_000) {
+                KToonKotlinX.encodeToString(data)
+            }
+        }
+
+        val savingPercent =
+            (1.0 - toon.length.toDouble() / json.length.toDouble()) * 100.0
+
+        println("JSON:")
+        println(json)
+        println("$jsonTime ms")
+
+        println()
+        println("TOON:")
+        println(toon)
+        println("$toonTime ms")
+
+        println()
+        println("JSON size: ${json.length}")
+        println("TOON size: ${toon.length}")
+        println("Savings: %.2f%%".format(savingPercent))
+
+        assertTrue(toon.length < json.length)
     }
 }
