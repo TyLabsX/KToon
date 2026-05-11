@@ -5,7 +5,7 @@ plugins {
 rootProject.name = "KToon"
 
 val ktoonGroup = "de.tylabsx"
-val ktoonVersion = "1.1.0"
+val ktoonVersion = "1.2.0"
 
 gradle.beforeProject {
     group = ktoonGroup
@@ -22,5 +22,6 @@ include(
     "ktoon-internal",
     "ktoon-codec",
     "ktoon-kotlinx",
+    "ktoon-query",
     "ktoon-benchmark"
 )

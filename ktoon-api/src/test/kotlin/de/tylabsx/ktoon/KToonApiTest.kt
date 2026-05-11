@@ -237,4 +237,32 @@ class KToonApiTest {
         assertEquals(true, (obj.entries["boolean"] as ToonBoolean).value)
         assertEquals(3, obj.entries.size)
     }
+
+    @Test
+    fun `KToon query helpers should navigate ToonValue paths`() {
+        val value = ToonObject(
+            mapOf(
+                "users" to ToonArray(
+                    listOf(
+                        ToonObject(
+                            mapOf(
+                                "id" to ToonNumber("1"),
+                                "name" to ToonString("Ada")
+                            )
+                        ),
+                        ToonObject(
+                            mapOf(
+                                "id" to ToonNumber("2"),
+                                "name" to ToonString("Bob")
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        assertEquals(ToonString("Ada"), KToon.get(value, "users[0].name"))
+        assertEquals(listOf(ToonNumber("1"), ToonNumber("2")), KToon.select(value, "users[*].id"))
+        assertTrue(KToon.exists(value, "users[*].name"))
+    }
 }

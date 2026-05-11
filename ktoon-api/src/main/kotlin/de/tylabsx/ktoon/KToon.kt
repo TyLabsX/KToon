@@ -3,6 +3,7 @@ package de.tylabsx.ktoon
 import de.tylabsx.ktoon.kotlinx.streaming.ExperimentalKToonStreamingApi
 import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import de.tylabsx.ktoon.kotlinx.streaming.KToonStreamingFormat
+import de.tylabsx.ktoon.query.KToonQuery
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.serializer
@@ -599,5 +600,49 @@ object KToon {
     @OptIn(ExperimentalKToonStreamingApi::class)
     inline fun <reified T : Any> streamToString(value: T): String {
         return KToonStreamingFormat.encodeToString(value)
+    }
+
+    /**
+     * Returns the value at [path], or `null` when the path cannot be resolved.
+     *
+     * Wildcards are not allowed in this single-value API. Use [select] for
+     * wildcard paths such as `users[*].name`.
+     *
+     * @param value root ToonValue
+     * @param path property/index path
+     * @return matched value, or `null` if missing
+     * @throws de.tylabsx.ktoon.query.KToonQueryException when [path] is invalid
+     * or contains a wildcard
+     */
+    fun get(value: ToonValue, path: String): ToonValue? {
+        return KToonQuery.get(value, path)
+    }
+
+    /**
+     * Returns all values matched by [path].
+     *
+     * Wildcards expand array items. Missing branches are skipped.
+     *
+     * @param value root ToonValue
+     * @param path property/index/wildcard path
+     * @return all matched values, or an empty list when no branch matches
+     * @throws de.tylabsx.ktoon.query.KToonQueryException when [path] is invalid
+     */
+    fun select(value: ToonValue, path: String): List<ToonValue> {
+        return KToonQuery.select(value, path)
+    }
+
+    /**
+     * Returns whether [path] resolves to at least one value.
+     *
+     * Wildcard paths are evaluated as selections.
+     *
+     * @param value root ToonValue
+     * @param path property/index/wildcard path
+     * @return true when at least one value matches
+     * @throws de.tylabsx.ktoon.query.KToonQueryException when [path] is invalid
+     */
+    fun exists(value: ToonValue, path: String): Boolean {
+        return KToonQuery.exists(value, path)
     }
 }

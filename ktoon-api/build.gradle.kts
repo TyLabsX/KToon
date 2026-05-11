@@ -11,6 +11,7 @@ dependencies {
     api(project(":ktoon-processing"))
     api(project(":ktoon-codec"))
     api(project(":ktoon-kotlinx"))
+    api(project(":ktoon-query"))
 
     implementation(project(":ktoon-internal"))
 
