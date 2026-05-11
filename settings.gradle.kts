@@ -21,5 +21,6 @@ include(
     "ktoon-api",
     "ktoon-internal",
     "ktoon-codec",
-    "ktoon-kotlinx"
+    "ktoon-kotlinx",
+    "ktoon-benchmark"
 )

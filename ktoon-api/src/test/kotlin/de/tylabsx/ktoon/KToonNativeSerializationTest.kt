@@ -1,10 +1,15 @@
+@file:Suppress("DEPRECATION")
+
 package de.tylabsx.ktoon
 
+import de.tylabsx.ktoon.kotlinx.bridge.KToonKotlinX
+import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Suppress("DEPRECATION")
 class KToonNativeSerializationTest {
 
     @Serializable

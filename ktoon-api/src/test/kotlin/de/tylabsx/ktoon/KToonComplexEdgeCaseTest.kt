@@ -59,22 +59,8 @@ class KToonComplexEdgeCaseTest {
     """.trimIndent()
 
         val parsed = KToon.parse(input)
-
-        println("\n================ AST =================")
-        println(parsed)
-        println("======================================\n")
-
         val stringified = KToon.stringify(parsed)
-
-        println("\n============== TOON OUTPUT ============")
-        println(stringified)
-        println("======================================\n")
-
         val reparsed = KToon.parse(stringified)
-
-        println("\n============= REPARSED AST ============")
-        println(reparsed)
-        println("======================================\n")
 
         assertEquals(parsed, reparsed)
     }

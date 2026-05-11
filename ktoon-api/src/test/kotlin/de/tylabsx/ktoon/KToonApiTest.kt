@@ -43,13 +43,6 @@ class KToonApiTest {
 
         assertTrue(result is ToonObject)
         val userObj = result
-        println("=== DEBUG: Full result ===")
-        println(userObj)
-        println("=== DEBUG: Number of entries ===")
-        println("Entries count: ${userObj.entries.size}")
-        userObj.entries.forEach { (key, value) ->
-            println("  $key: $value (${value::class.simpleName})")
-        }
         assertEquals(1, userObj.entries.size)
 
         val userValue = userObj.entries["user"] as ToonObject
@@ -66,9 +59,6 @@ class KToonApiTest {
         )
 
         val result = KToon.stringify(value)
-
-        println("=== DEBUG: Full result ===")
-        println(result)
 
         assertTrue(result.contains("name: Alice"))
         assertTrue(result.contains("age: 25"))
@@ -90,9 +80,6 @@ class KToonApiTest {
         )
 
         val result = KToon.stringify(value)
-
-        println("=== DEBUG: Full result ===")
-        println(result)
 
         assertTrue(result.contains("user:"))
         assertTrue(result.contains("id: 123"))

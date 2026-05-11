@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    implementation("de.tylabsx:ktoon-api:1.1.0")
+    implementation("de.tylabsx:ktoon:1.1.0")
 }
 ```
 
@@ -44,6 +44,8 @@ dependencies {
     implementation("de.tylabsx:ktoon-kotlinx:1.1.0")
 }
 ```
+
+The `ktoon-api` module is published as the main `de.tylabsx:ktoon` artifact.
 
 ---
 
@@ -116,7 +118,7 @@ serializable values into the KToon `ToonValue` model and writes TOON text. It
 decodes TOON text through the native value parser and `KToonSerializationDecoder`.
 
 ```kotlin
-import de.tylabsx.ktoon.KToonNativeFormat
+import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -180,7 +182,7 @@ Streaming decode is not supported yet. Decode streaming output with
 `KToonNativeFormat`.
 
 ```kotlin
-import de.tylabsx.ktoon.KToonNativeFormat
+import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import de.tylabsx.ktoon.kotlinx.streaming.ExperimentalKToonStreamingApi
 import de.tylabsx.ktoon.kotlinx.streaming.KToonStreamingFormat
 
@@ -397,6 +399,8 @@ scores[3]: 95.5,88.0,100.25
 but new code should use `KToonNativeFormat`.
 
 ```kotlin
+import de.tylabsx.ktoon.kotlinx.bridge.KToonKotlinX
+
 @Suppress("DEPRECATION")
 val toon = KToonKotlinX.encodeToString(user)
 ```

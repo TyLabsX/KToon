@@ -2,10 +2,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":ktoon-core"))
     implementation(kotlin("reflect"))
@@ -13,11 +9,4 @@ dependencies {
     testImplementation(project(":ktoon-parser"))
     testImplementation(project(":ktoon-writer"))
     testImplementation(kotlin("test"))
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(24)
 }

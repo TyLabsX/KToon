@@ -1,11 +1,6 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    `java-library`
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
@@ -17,17 +12,4 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     testImplementation(kotlin("test"))
-}
-
-kotlin {
-    jvmToolchain(24)
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }

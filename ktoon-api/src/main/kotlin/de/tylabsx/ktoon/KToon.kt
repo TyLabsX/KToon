@@ -1,6 +1,7 @@
 package de.tylabsx.ktoon
 
 import de.tylabsx.ktoon.kotlinx.streaming.ExperimentalKToonStreamingApi
+import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import de.tylabsx.ktoon.kotlinx.streaming.KToonStreamingFormat
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
@@ -306,7 +307,7 @@ object KToon {
      * ))
      * ```
      */
-    fun `object`(entries: Map<String, Any>): ToonObject {
+    fun `object`(entries: Map<String, Any?>): ToonObject {
         val convertedEntries = entries.mapValues { (_, value) ->
             when (value) {
                 is ToonValue -> value
@@ -334,7 +335,7 @@ object KToon {
      * val arr = KToon.array(listOf("admin", "user", "guest"))
      * ```
      */
-    fun array(values: List<Any>): ToonArray {
+    fun array(values: List<Any?>): ToonArray {
         val convertedValues = values.map { value ->
             when (value) {
                 is ToonValue -> value
@@ -430,6 +431,7 @@ object KToon {
         message = "Reflection-based encoding is deprecated. Use kotlinx.serialization based encodeToString instead.",
         replaceWith = ReplaceWith("KToon.encodeReflective(value)")
     )
+    @Suppress("DEPRECATION")
     fun encode(value: Any?): ToonValue {
         return encodeReflective(value)
     }
@@ -469,6 +471,10 @@ object KToon {
      * @param value Kotlin value
      * @return encoded ToonValue
      */
+    @Deprecated(
+        message = "Reflection-based encoding is legacy. Use kotlinx.serialization based encodeToString instead.",
+        replaceWith = ReplaceWith("KToon.encodeToString(value)")
+    )
     fun encodeReflective(value: Any?): ToonValue {
         return reflectiveEncoder.encode(value)
     }
@@ -480,6 +486,11 @@ object KToon {
      * @param value Kotlin value
      * @return TOON string
      */
+    @Deprecated(
+        message = "Reflection-based encoding is legacy. Use kotlinx.serialization based encodeToString instead.",
+        replaceWith = ReplaceWith("KToon.encodeToString(value)")
+    )
+    @Suppress("DEPRECATION")
     fun encodeReflectiveToString(value: Any?): String {
         return stringify(encodeReflective(value))
     }
@@ -495,6 +506,7 @@ object KToon {
         message = "Reflection-based decoding is deprecated. Use kotlinx.serialization based decodeFromString instead.",
         replaceWith = ReplaceWith("KToon.decodeReflective<T>(value)")
     )
+    @Suppress("DEPRECATION")
     inline fun <reified T : Any> decode(value: ToonValue): T {
         return decodeReflective(value)
     }
@@ -548,6 +560,10 @@ object KToon {
      * @param value ToonValue source
      * @return decoded Kotlin object
      */
+    @Deprecated(
+        message = "Reflection-based decoding is legacy. Use kotlinx.serialization based decode instead.",
+        replaceWith = ReplaceWith("KToon.decode(deserializer, value)")
+    )
     inline fun <reified T : Any> decodeReflective(value: ToonValue): T {
         return KToonDecoder().decode<T>(value)
     }
@@ -559,6 +575,11 @@ object KToon {
      * @param input TOON input
      * @return decoded Kotlin object
      */
+    @Deprecated(
+        message = "Reflection-based decoding is legacy. Use kotlinx.serialization based decodeFromString instead.",
+        replaceWith = ReplaceWith("KToon.decodeFromString<T>(input)")
+    )
+    @Suppress("DEPRECATION")
     inline fun <reified T : Any> decodeReflectiveFromString(input: String): T {
         return decodeReflective(parse(input))
     }

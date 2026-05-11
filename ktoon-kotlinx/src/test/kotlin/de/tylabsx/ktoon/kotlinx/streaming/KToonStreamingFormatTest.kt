@@ -1,7 +1,7 @@
 package de.tylabsx.ktoon.kotlinx.streaming
 
-import de.tylabsx.ktoon.KToonNativeFormat
 import de.tylabsx.ktoon.KToonParserEngine
+import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.test.assertEquals

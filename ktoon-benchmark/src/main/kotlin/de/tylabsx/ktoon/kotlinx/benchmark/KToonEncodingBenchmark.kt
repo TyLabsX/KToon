@@ -1,7 +1,7 @@
-package de.tylabsx
+package de.tylabsx.ktoon.kotlinx.benchmark
 
-import de.tylabsx.ktoon.KToonNativeFormat
 import de.tylabsx.ktoon.KToonParserEngine
+import de.tylabsx.ktoon.kotlinx.native.KToonNativeFormat
 import de.tylabsx.ktoon.kotlinx.streaming.ExperimentalKToonStreamingApi
 import de.tylabsx.ktoon.kotlinx.streaming.KToonStreamingFormat
 import de.tylabsx.ktoon.kotlinx.streaming.KToonStreamingMode
@@ -10,12 +10,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.system.measureNanoTime
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalKToonStreamingApi::class)
-class KToonEncodingBenchmarkTests {
+fun main() {
+    KToonEncodingBenchmark().run()
+}
+
+@OptIn(ExperimentalKToonStreamingApi::class)
+class KToonEncodingBenchmark {
 
     private val json = Json {
         encodeDefaults = true
@@ -92,8 +94,13 @@ class KToonEncodingBenchmarkTests {
         val active: Boolean
     )
 
-    @Test
-    fun `benchmark numeric heavy encoding`() {
+    fun run() {
+        benchmarkNumericHeavyEncoding()
+        benchmarkRealisticUserEncoding()
+        benchmarkDeeplyNestedEncoding()
+    }
+
+    private fun benchmarkNumericHeavyEncoding() {
         val dataset = NumericDataset(
             samples = List(250) { index ->
                 NumericSample(
@@ -109,8 +116,7 @@ class KToonEncodingBenchmarkTests {
         benchmark("Numeric-heavy encoding", dataset)
     }
 
-    @Test
-    fun `benchmark realistic user encoding`() {
+    private fun benchmarkRealisticUserEncoding() {
         val dataset = UserDataset(
             users = List(100) { index ->
                 UserRecord(
@@ -127,8 +133,7 @@ class KToonEncodingBenchmarkTests {
         benchmark("Realistic user encoding", dataset)
     }
 
-    @Test
-    fun `benchmark deeply nested encoding`() {
+    private fun benchmarkDeeplyNestedEncoding() {
         val dataset = NestedDataset(
             company = Company(
                 name = "TyLabsX",
@@ -212,17 +217,17 @@ class KToonEncodingBenchmarkTests {
         println("============================================================")
         println()
 
-        assertTrue(jsonOutput.isNotEmpty())
-        assertTrue(nativeOutput.isNotEmpty())
-        assertTrue(fastOutput.isNotEmpty())
-        assertTrue(compactOutput.isNotEmpty())
+        check(jsonOutput.isNotEmpty())
+        check(nativeOutput.isNotEmpty())
+        check(fastOutput.isNotEmpty())
+        check(compactOutput.isNotEmpty())
 
         KToonParserEngine().parse(nativeOutput)
         KToonParserEngine().parse(fastOutput)
         KToonParserEngine().parse(compactOutput)
-        assertEquals(value, KToonNativeFormat.decodeFromString<T>(nativeOutput))
-        assertEquals(value, KToonNativeFormat.decodeFromString<T>(fastOutput))
-        assertEquals(value, KToonNativeFormat.decodeFromString<T>(compactOutput))
+        check(value == KToonNativeFormat.decodeFromString<T>(nativeOutput))
+        check(value == KToonNativeFormat.decodeFromString<T>(fastOutput))
+        check(value == KToonNativeFormat.decodeFromString<T>(compactOutput))
     }
 
     private fun savings(jsonOutput: String, output: String): Double {

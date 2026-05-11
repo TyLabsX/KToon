@@ -3,34 +3,19 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    implementation(project(":ktoon-core"))
-    implementation(project(":ktoon-engine"))
-    implementation(project(":ktoon-parser"))
-    implementation(project(":ktoon-processing"))
-    implementation(project(":ktoon-internal"))
-    implementation(project(":ktoon-codec"))
+    api(project(":ktoon-core"))
+    api(project(":ktoon-engine"))
+    api(project(":ktoon-parser"))
+    api(project(":ktoon-writer"))
+    api(project(":ktoon-processing"))
+    api(project(":ktoon-codec"))
     api(project(":ktoon-kotlinx"))
+
+    implementation(project(":ktoon-internal"))
 
     api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.11.0")
 
     testImplementation(kotlin("test"))
     testImplementation(project(":ktoon-core"))
-}
-
-kotlin {
-    jvmToolchain(24)
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }

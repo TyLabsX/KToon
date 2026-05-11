@@ -1,4 +1,14 @@
-package de.tylabsx.ktoon
+package de.tylabsx.ktoon.kotlinx.bridge
+
+import de.tylabsx.ktoon.KToonParserEngine
+import de.tylabsx.ktoon.KToonWriterEngine
+import de.tylabsx.ktoon.ToonArray
+import de.tylabsx.ktoon.ToonBoolean
+import de.tylabsx.ktoon.ToonNull
+import de.tylabsx.ktoon.ToonNumber
+import de.tylabsx.ktoon.ToonObject
+import de.tylabsx.ktoon.ToonString
+import de.tylabsx.ktoon.ToonValue
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy

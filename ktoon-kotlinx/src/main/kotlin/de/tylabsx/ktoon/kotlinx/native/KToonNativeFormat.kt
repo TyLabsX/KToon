@@ -1,4 +1,7 @@
-package de.tylabsx.ktoon
+package de.tylabsx.ktoon.kotlinx.native
+
+import de.tylabsx.ktoon.KToonWriterEngine
+import de.tylabsx.ktoon.ToonValue
 
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
@@ -14,8 +17,8 @@ import kotlinx.serialization.modules.SerializersModule
  * with the existing TOON writer. Decoding parses TOON into [ToonValue] with the
  * native fast value parser and reads it with [KToonSerializationDecoder].
  *
- * Unlike [KToonKotlinX], this implementation does not bridge through
- * kotlinx.serialization JSON types. It is the primary format layer for
+ * Unlike the legacy JsonElement bridge, this implementation does not convert
+ * through kotlinx.serialization JSON types. It is the primary format layer for
  * Kotlin-first TOON serialization.
  *
  * Example:

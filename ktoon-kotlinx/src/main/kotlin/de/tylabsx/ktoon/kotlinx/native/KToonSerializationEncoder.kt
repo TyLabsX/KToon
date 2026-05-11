@@ -1,4 +1,12 @@
-package de.tylabsx.ktoon
+package de.tylabsx.ktoon.kotlinx.native
+
+import de.tylabsx.ktoon.ToonArray
+import de.tylabsx.ktoon.ToonBoolean
+import de.tylabsx.ktoon.ToonNull
+import de.tylabsx.ktoon.ToonNumber
+import de.tylabsx.ktoon.ToonObject
+import de.tylabsx.ktoon.ToonString
+import de.tylabsx.ktoon.ToonValue
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException

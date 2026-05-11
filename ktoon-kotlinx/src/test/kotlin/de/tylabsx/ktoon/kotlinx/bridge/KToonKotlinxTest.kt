@@ -1,12 +1,12 @@
-package de.tylabsx.ktoon
+package de.tylabsx.ktoon.kotlinx.bridge
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.system.measureTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@Suppress("DEPRECATION")
 class KToonKotlinxTest {
 
     @Serializable
@@ -54,10 +54,6 @@ class KToonKotlinxTest {
 
         val toon = KToonKotlinX.encodeToString(user)
 
-        println()
-        println("---- KOTLINX SIMPLE TOON ----")
-        println(toon)
-
         assertTrue(toon.contains("id: 1"))
         assertTrue(toon.contains("name: Alice"))
         assertTrue(toon.contains("active: true"))
@@ -103,10 +99,6 @@ class KToonKotlinxTest {
 
         val toon = KToonKotlinX.encodeToString(company)
 
-        println()
-        println("---- KOTLINX COMPLEX TOON ----")
-        println(toon)
-
         val decoded = KToonKotlinX.decodeFromString<Company>(toon)
 
         assertEquals(company, decoded)
@@ -138,10 +130,6 @@ class KToonKotlinxTest {
         )
 
         val toon = KToonKotlinX.encodeToString(original)
-
-        println()
-        println("---- KOTLINX WEIRD STRINGS TOON ----")
-        println(toon)
 
         val decoded = KToonKotlinX.decodeFromString<WeirdStrings>(toon)
 
@@ -177,35 +165,10 @@ class KToonKotlinxTest {
         val json = Json.encodeToString(data)
         val toon = KToonKotlinX.encodeToString(data)
 
-        val jsonTime = measureTimeMillis {
-            repeat(10_000) {
-                Json.encodeToString(data)
-            }
-        }
-
-        val toonTime = measureTimeMillis {
-            repeat(10_000) {
-                KToonKotlinX.encodeToString(data)
-            }
-        }
-
         val savingPercent =
             (1.0 - toon.length.toDouble() / json.length.toDouble()) * 100.0
 
-        println("JSON:")
-        println(json)
-        println("$jsonTime ms")
-
-        println()
-        println("TOON:")
-        println(toon)
-        println("$toonTime ms")
-
-        println()
-        println("JSON size: ${json.length}")
-        println("TOON size: ${toon.length}")
-        println("Savings: %.2f%%".format(savingPercent))
-
         assertTrue(toon.length < json.length)
+        assertTrue(savingPercent > 0.0)
     }
 }
